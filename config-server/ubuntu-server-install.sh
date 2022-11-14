@@ -7,7 +7,7 @@ test $? -eq 0 || exit 1 "you should have sudo privilege to run this script"
 
 echo making all updates and adding repos
 
-apt-get updates -y
+apt-get update -y
 apt-get dist-upgrade -y
 # you might want to reboot now continue from here withour reboot might be bad ...
 
