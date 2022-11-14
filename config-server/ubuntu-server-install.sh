@@ -1,11 +1,12 @@
 #!/bin/bash
 set -eu -o pipefail # fail on error and report it, debug all lines
-export GREEN='\033[0;31m'
-export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export NC='\033[0m'
+
 sudo -n true
 test $? -eq 0 || exit 1 "you should have sudo privilege to run this script"
 
-printf "${GREEN} making all updates and adding repos"
+printf "${GREEN} making all updates and adding repos${NC}"
 
 apt-get update -y
 apt-get dist-upgrade -y
@@ -16,7 +17,7 @@ CRIO_VERSION=1.23
 
 
 
-printf "${GREEN} Assuming your desired CRIO_VERSION is $CRIO_VERSION and you operate on UBUNTU 22.04 or 20.04 "
+printf "${GREEN} Assuming your desired CRIO_VERSION is $CRIO_VERSION and you operate on UBUNTU 22.04 or 20.04 ${NC}"
 
 
 echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"| tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
@@ -28,10 +29,10 @@ curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:sta
 apt update 
 apt install -y cri-o cri-o-runc
 
-printf "${GREEN} Starting Crio services, Start Crio on startup"
+printf "${GREEN} Starting Crio services, Start Crio on startup ${NC}"
 systemctl enable crio.service
 systemctl start crio.service
-printf "${GREEN} Install more prequisits"
+printf "${GREEN} Install more prequisits ${NC}"
 apt install -y cri-tools apt-transport-https ca-certificates
 curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
@@ -41,7 +42,7 @@ apt-mark hold kubelet kubeadm kubectl
 
 
 
-printf "${GREEN} creating cgroup-file"
+printf "${GREEN} creating cgroup-file ${NC}"
 echo "# kubeadm-config.yaml
 kind: ClusterConfiguration
 apiVersion: kubeadm.k8s.io/v1beta3
@@ -55,5 +56,5 @@ apt-get update && sudo apt-get upgrade
 modprobe br_netfilter
 
 
-printf "${GREEN} Kubelet was installed and started check status with 'systemctl status kubelet'"
-printf "${GREEN} Join an existing cluster with by running 'kubeadm token create --print-join-command' on master node"
+printf "${GREEN} Kubelet was installed and started check status with ${NC} \033[1;34m 'systemctl status kubelet' ${NC}"
+printf "${GREEN} Join an existing cluster with by running on master node ${NC} \033[1;34m 'kubeadm token create --print-join-command'${NC}"
