@@ -1,0 +1,115 @@
+# static pvc for photoprism ala 
+# https://lapee79.github.io/en/article/use-a-local-disk-by-local-volume-static-provisioner-in-kubernetes/
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-database-pv
+spec:
+  capacity:
+    # i am pretty sure this should be 5.9Ti
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef:
+    name: database-pvc
+    namespace: photoprism
+  local:
+    path: /media/zeronyk/photoprism/database
+    # probably slow as fuck ...
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ubuntu-server2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-storage-pv
+spec:
+  capacity:
+    # i am pretty sure this should be 5.9Ti
+    storage: 400Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef:
+    name: storage-pvc
+    namespace: photoprism
+  local:
+    path: /media/zeronyk/photoprism/storage
+    # probably slow as fuck ...
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ubuntu-server2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-originals-pv
+spec:
+  capacity:
+    # i am pretty sure this should be 5.9Ti
+    storage: 2000Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef:
+    name: originals-pvc
+    namespace: photoprism
+  local:
+    path: /media/zeronyk/photoprism/originals
+    # probably slow as fuck ...
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ubuntu-server2
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: photoprism-import-pv
+spec:
+  capacity:
+    # i am pretty sure this should be 5.9Ti
+    storage: 3000Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef:
+    name: import-pvc
+    namespace: photoprism
+  local:
+    path: /media/zeronyk/photoprism/plaincopy
+    # probably slow as fuck ...
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ubuntu-server2
+
+
+
+

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mariadb
+  namespace: photoprism
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  serviceName: mariadb-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:10.9
+        env:
+        - name: MARIADB_AUTO_UPGRADE
+          value: "1"
+        - name: MARIADB_INITDB_SKIP_TZINFO
+          value: "1"
+        - name: MARIADB_DATABASE
+          value: "photoprism"
+        - name: MARIADB_USER
+          value: "photoprism"
+        - name: MARIADB_PASSWORD
+          value: ${MARIADB_PASSWORD}
+        - name: MARIADB_ROOT_PASSWORD
+          value: ${MARIADB_ROOT_PASSWORD}
+        ports:
+        - containerPort: 3306
+          name: mariadbport
+        volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d/database.sql.gz
+          name: database
+          subPath: latest.photoprism.sql.gz
+
+      - name: mariadb-cron-backup
+        image: fradelg/mysql-cron-backup
+        env:
+        - name: MYSQL_HOST
+          value: "mariadb-service"
+        - name: MYSQL_DATABASE
+          value: "photoprism"
+        - name: MYSQL_USER
+          value: "photoprism"
+        - name: MYSQL_PASS
+          value: ${MARIADB_PASSWORD}
+        - name: MAX_BACKUPS
+          value: "15"
+        - name: INIT_BACKUP
+          value: "0"
+        - name: CRON_TIME
+          value: "0 3 * * *"
+        - name:  GZIP_LEVEL
+          value: "9"
+        volumeMounts:
+        - mountPath: /backup
+          name: database
+      volumes:
+      - name: database
+        persistentVolumeClaim:
+          claimName: database-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service
+  namespace: photoprism
+spec:
+  ports:
+  - name: mariadbport
+    port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: mariadb
+  type: ClusterIP
